@@ -48,4 +48,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           try { gh release delete latest --yes --cleanup-tag 2>$null } catch {}
-          gh release create latest HonorCanyon.jar HonorCanyon-win.zip --title "最新构建" --notes "由 push 自动构建"
+          $d = (Get-Date).ToUniversalTime().AddHours(8).ToString('yyyy-MM-dd')
+          gh release create latest HonorCanyon.jar HonorCanyon-win.zip --title "最新构建 $d" --notes "由 push 自动构建"
