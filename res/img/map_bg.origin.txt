@@ -1,0 +1,10 @@
+ox=1149
+oy=165
+w=1821
+h=1185
+scale_num=1
+scale_den=1
+basis=11,10,-22,5
+hz=2.000
+file=map_bg.jpg
+source=wzry_model_same_grid_transform
