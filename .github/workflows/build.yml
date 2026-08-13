@@ -1,0 +1,49 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Compile
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path out -Force | Out-Null
+          javac -encoding UTF-8 -d out (Get-ChildItem -Path honor -Recurse -Filter *.java).FullName
+
+      - name: Copy resources
+        shell: pwsh
+        run: Copy-Item -Path res -Destination out -Recurse -Force
+
+      - name: Package JAR
+        shell: pwsh
+        run: jar --create --file HonorCanyon.jar --main-class honor.Main -C out .
+
+      - name: Package Windows app-image
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path pkg -Force | Out-Null
+          Copy-Item HonorCanyon.jar pkg\
+          jpackage --name HonorCanyon --input pkg --main-jar HonorCanyon.jar --main-class honor.Main --type app-image --dest dist
+          Compress-Archive -Path dist\HonorCanyon -DestinationPath HonorCanyon-win.zip
+
+      - name: Publish Release
+        shell: pwsh
+        run: |
+          try { gh release delete latest --yes --cleanup-tag 2>$null } catch {}
+          gh release create latest HonorCanyon.jar HonorCanyon-win.zip --title "最新构建" --notes "由 push 自动构建"
