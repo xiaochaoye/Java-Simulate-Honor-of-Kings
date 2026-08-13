@@ -44,6 +44,8 @@ jobs:
 
       - name: Publish Release
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           try { gh release delete latest --yes --cleanup-tag 2>$null } catch {}
           gh release create latest HonorCanyon.jar HonorCanyon-win.zip --title "最新构建" --notes "由 push 自动构建"
